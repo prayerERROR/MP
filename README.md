@@ -1,1 +1,2 @@
-test.
+# MP
+A simple affair management platform.
