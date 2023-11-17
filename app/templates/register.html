@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.css">
+    <style>
+        .account{width: 500px; margin: 0 auto;}
+    </style>
+</head>
+<body>
+<div class="account">
+    <h1 style="text-align: center">Register</h1>
+    <form>
+        {% for item in form %}
+        <div class="form-group">
+            <label for={{ item.id_for_label }}> {{ item.label }} </label>
+            {{ item }}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+</body>
+</html>
