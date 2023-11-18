@@ -1,7 +1,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
-from django.conf import settings
+from MP import settings
 
 smtp_server = settings.smtp_server
 sender_name = settings.sender_name

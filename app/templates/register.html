@@ -12,11 +12,21 @@
 <div class="account">
     <h1 style="text-align: center">Register</h1>
     <form>
-        {% for item in form %}
-        <div class="form-group">
-            <label for={{ item.id_for_label }}> {{ item.label }} </label>
-            {{ item }}
-        </div>
+        {% for field in form %}
+            {% if field.name == 'verificationCode' %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    <div class="clearfix">
+                        <div class="col-md-5" style="padding-left: 0;">{{ field }}</div>
+                        <div class="col-md-5"><button type="button" class="btn btn-default">Send Verification Code</button></div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    {{ field }}
+                </div>
+            {% endif %}
         {% endfor %}
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
