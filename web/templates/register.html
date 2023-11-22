@@ -1,0 +1,81 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+{% block title %} User Register {% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/register_form.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="register_form">
+    <div class="form_title">Register for MP</div>
+    <form>
+        {% for field in form %}
+            {% if field.name == 'verification_code' %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    <div class="clearfix">
+                        <div class="col-md-6" style="padding: 0;">{{ field }}</div>
+                        <div class="col-md-4"><button id="BtnSendCode" type="button" class="btn btn-default">Send Code</button></div>
+                    </div>
+                    <span id="error-msg"></span>
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $(function (){
+            bindClickBtnSendCode();
+        });
+
+        function bindClickBtnSendCode(){
+            $('#BtnSendCode').click(function()
+            {
+                $(this).prop('disabled', true);
+                $('#error-msg').empty()
+                const emailAddress = $('#id_email').val();
+                $.ajax
+                ({
+                    url: '{% url 'registerVerifyEmail' %}',
+                    type: 'GET',
+                    data: {email: emailAddress},
+                    dataType: 'JSON',
+                    success: function (res)
+                    {
+                        if (res.status)
+                        {
+                            let time = 60;
+                            let remind = setInterval(function()
+                            {
+                                $('#BtnSendCode').text(time+'s to resend');
+                                time = time - 1;
+                                if (time < 1)
+                                {
+                                    $('#BtnSendCode').text('Send Code').prop('disabled', false);
+                                    clearInterval(remind);
+                                }
+                            }, 1000)
+                        }
+                        else
+                        {
+                            $('#BtnSendCode').prop('disabled', false);
+                            $('#error-msg').text(res.error);
+                        }
+                    }
+                })
+            })
+        }
+
+    </script>
+{% endblock %}

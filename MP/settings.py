@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app.apps.AppConfig',
+    'web.apps.WebConfig',
 ]
 
 MIDDLEWARE = [
@@ -95,11 +96,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 
-# Please put sensitive information in your local_settings file.
-smtp_server = "Your mail server"
-sender_name = "Your website's name"
-sender_addr = "Your mail address"
-sender_pwd = "Password or code to use your mail service"
+# Caches
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://:PASSWORD@IP:PORT',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100,
+                'encoding': 'utf-8'
+            },
+        },
+    }
+}
+
+
+# Sending emails
+SMTP_SERVER = "Your mail server"
+SENDER_NAME = "Your website's name"
+SENDER_ADDR = "Your mail address"
+SENDER_PWD = "Password or code to use your mail service"
 
 try:
     from .local_settings import *
