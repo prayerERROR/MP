@@ -1,6 +1,7 @@
 {% extends 'layout/basic.html' %}
 {% load static %}
 
+
 {% block title %} User Register {% endblock %}
 
 {% block css %}
@@ -10,7 +11,8 @@
 {% block content %}
     <div class="register_form">
     <div class="form_title">Register for MP</div>
-    <form>
+    <form id="RegisterForm" method="POST">
+        {% csrf_token %}
         {% for field in form %}
             {% if field.name == 'verification_code' %}
                 <div class="form-group">
@@ -19,7 +21,7 @@
                         <div class="col-md-6" style="padding: 0;">{{ field }}</div>
                         <div class="col-md-4"><button id="BtnSendCode" type="button" class="btn btn-default">Send Code</button></div>
                     </div>
-                    <span id="error-msg"></span>
+                    <span id="ErrorMsg"></span>
                 </div>
             {% else %}
                 <div class="form-group">
@@ -28,22 +30,25 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" id="BtnSubmit" class="btn btn-primary">Submit</button>
     </form>
     </div>
 {% endblock %}
 
 {% block js %}
     <script>
-        $(function (){
+        $(function ()
+        {
             bindClickBtnSendCode();
+            bindClickBtnSubmit();
         });
 
-        function bindClickBtnSendCode(){
-            $('#BtnSendCode').click(function()
+        function bindClickBtnSendCode()
+        {
+            $('#BtnSendCode').click(function ()
             {
                 $(this).prop('disabled', true);
-                $('#error-msg').empty()
+                $('#ErrorMsg').empty()
                 const emailAddress = $('#id_email').val();
                 $.ajax
                 ({
@@ -70,8 +75,30 @@
                         else
                         {
                             $('#BtnSendCode').prop('disabled', false);
-                            $('#error-msg').text(res.error);
+                            $('#ErrorMsg').text(res.error);
                         }
+                    }
+                })
+            })
+        }
+
+        function bindClickBtnSubmit()
+        {
+            $('#BtnSubmit').click(function ()
+            {
+                $(this).prop('disabled', true);
+                $('#ErrorMsg').empty();
+                $.ajax
+                ({
+                    url: '{% url 'register' %}',
+                    type: 'POST',
+                    data: $('#RegisterForm').serialize(),
+                    dataType: 'JSON',
+                    success: function (res)
+                    {
+                        console.log(res);
+                        $('#BtnSubmit').prop('disabled', false);
+                        $('#ErrorMsg').text(res.error);
                     }
                 })
             })

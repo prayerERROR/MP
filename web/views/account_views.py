@@ -2,32 +2,42 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django_redis import get_redis_connection
 
-from web.forms.account_form import RegisterModelForm
-from web.models import UserInfo
+from web.forms.account_form import RegisterModelForm, VerifyEmailForm
 from utils.SendMail import send_text_mail
+from utils.Encrypt import md5
 
 from random import randrange
-from re import fullmatch
 
 
 def register(request):
-    form = RegisterModelForm()
-    return render(request, 'register.html', {'form': form})
+    if request.method == 'GET':
+        form = RegisterModelForm()
+        return render(request, 'register.html', {'form': form})
+    else:
+        form = RegisterModelForm(data=request.POST)
+        result = {'status': False, 'error': None}
+
+    # Verify
+    if not form.is_valid():
+        error_list = list(form.errors.values())
+        result['error'] = error_list[0]
+        return JsonResponse(result)
+    else:
+        # Import new user's data into database.
+        form.instance.password = md5(form.cleaned_data['password'])
+        instance = form.save()
+        result['status'] = True
+        return JsonResponse(result)
 
 
 def register_verify_email(request):
+    form = VerifyEmailForm(data=request.GET)
     new_email = request.GET.get('email')
     result = {'status': False, 'error': None}
 
-    # check email address format
-    pattern = r'[a-zA-Z0-9_+-]+@[a-zA-Z0-9]+\.[a-zA-Z]{2,}'
-    if not fullmatch(pattern, new_email):
-        result['error'] = 'Invalid email address format.'
-        return JsonResponse(result)
-
-    # check if registered
-    if UserInfo.objects.filter(email=new_email):
-        result['error'] = 'The email address has been registered.'
+    # verify
+    if not form.is_valid():
+        result['error'] = form.errors['email']
         return JsonResponse(result)
 
     # generate verification code
@@ -44,5 +54,5 @@ def register_verify_email(request):
         result['status'] = True
         return JsonResponse(result)
     else:
-        result['error'] = send_result['error_info']
+        result['error'] = send_result['error']
         return JsonResponse(result)
