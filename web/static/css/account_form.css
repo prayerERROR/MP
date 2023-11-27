@@ -1,11 +1,11 @@
-.register_form {
+.account_form {
     width: 400px;
     margin: 25px auto;
     padding: 25px;
     border: 1px solid #909090;
 }
 
-.register_form .form_title {
+.account_form .form_title {
     font-size: 20px;
     font-weight: normal;
     text-align: center;

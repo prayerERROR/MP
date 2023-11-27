@@ -2,7 +2,7 @@
 {% load static %}
 
 
-{% block title %} User Register {% endblock %}
+{% block title %} User Login {% endblock %}
 
 {% block css %}
     <link rel="stylesheet" href="{% static 'css/account_form.css' %}">
@@ -10,8 +10,8 @@
 
 {% block content %}
     <div class="account_form">
-    <div class="form_title">Register for MP</div>
-    <form id="RegisterForm" method="POST">
+    <div class="form_title">Login to MP</div>
+    <form id="LoginForm" method="POST">
         {% csrf_token %}
         {% for field in form %}
             {% if field.name == 'verification_code' %}
@@ -30,7 +30,7 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <button type="submit" id="BtnSubmit" class="btn btn-primary">Submit</button>
+        <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
     </form>
     </div>
 {% endblock %}
@@ -40,7 +40,7 @@
         $(function ()
         {
             bindClickBtnSendCode();
-            bindClickBtnSubmit();
+            bindClickLogin();
         });
 
         function bindClickBtnSendCode()
@@ -82,15 +82,15 @@
             })
         }
 
-        function bindClickBtnSubmit()
+        function bindClickLogin()
         {
-            $('#BtnSubmit').click(function ()
+            $('#BtnLogin').click(function ()
             {
                 $(this).prop('disabled', true);
                 $('#ErrorMsg').empty();
                 $.ajax
                 ({
-                    url: '{% url 'register' %}',
+                    url: '{% url 'loginEmail' %}',
                     type: 'POST',
                     data: $('#RegisterForm').serialize(),
                     dataType: 'JSON',
@@ -100,7 +100,7 @@
                             location.href = res.data;
                         else
                             $('#ErrorMsg').text(res.error);
-                        $('#BtnSubmit').prop('disabled', false);
+                        $('#BtnLogin').prop('disabled', false);
                     }
                 })
             })
