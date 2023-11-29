@@ -50,7 +50,7 @@ class RegisterModelForm(forms.ModelForm):
                                             'required': 'Enter your verification code.',
                                             'max_length': 'Wrong verification code.',
                                         },
-                                        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+                                        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = models.UserInfo
@@ -116,26 +116,28 @@ class EmailVerifyForm(forms.Form):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if models.UserInfo.objects.filter(email=email).exists():
-            raise ValidationError('Email address already existed.')
+        email_type = self.data.get('type')
+
+        if email_type == 'register':
+            if models.UserInfo.objects.filter(email=email).exists():
+                raise ValidationError('Email address already existed.')
+        elif email_type == 'login':
+            if not models.UserInfo.objects.filter(email=email).exists():
+                raise ValidationError('Email address does not exist.')
         return email
 
 
 class LoginEmailForm(forms.Form):
     email = forms.EmailField(label='Email Address',
-                             max_length=32,
                              error_messages={
                                  'required': 'Enter your email address.',
-                                 'max_length': 'Email address is too long',
                              },
                              widget=forms.TextInput(attrs={'class': 'form-control'}))
     verification_code = forms.CharField(label='Verification Code',
-                                        max_length=16,
                                         error_messages={
                                             'required': 'Enter your verification code.',
-                                            'max_length': 'Wrong verification code.',
                                         },
-                                        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+                                        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -160,3 +162,21 @@ class LoginEmailForm(forms.Form):
         if redis_code != verification_code:
             raise ValidationError('Wrong verification code.')
         return verification_code
+
+
+class LoginUsernameForm(forms.Form):
+    username = forms.CharField(label='Username',
+                               error_messages={
+                                   'required': 'Creat your user name.',
+                               },
+                               widget=forms.TextInput(attrs={'class': 'form-control'}))
+    password = forms.CharField(label='Password',
+                               error_messages={
+                                   'required': 'Set your password.',
+                               },
+                               widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    image_code = forms.CharField(label='Image Verification Code',
+                                 error_messages={
+                                     'required': 'Enter image verification code.',
+                                 },
+                                 widget=forms.TextInput(attrs={'class': 'form-control'}))

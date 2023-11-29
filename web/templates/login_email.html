@@ -18,8 +18,8 @@
                 <div class="form-group">
                     <label for={{ field.id_for_label }}> {{ field.label }} </label>
                     <div class="row">
-                        <div class="col-xs-7">{{ field }}</div>
-                        <div class="col-xs-5"><button id="BtnSendCode" type="button" class="btn btn-default">Send Code</button></div>
+                        <div class="col-xs-6">{{ field }}</div>
+                        <div class="col-xs-6"><button id="BtnSendCode" type="button" class="btn btn-default">Send Code</button></div>
                     </div>
                     <span id="ErrorMsg"></span>
                 </div>
@@ -54,7 +54,7 @@
                 ({
                     url: '{% url 'emailVerify' %}',
                     type: 'GET',
-                    data: {email: emailAddress},
+                    data: {email: emailAddress, type: 'login'},
                     dataType: 'JSON',
                     success: function (res)
                     {
@@ -92,12 +92,13 @@
                 ({
                     url: '{% url 'loginEmail' %}',
                     type: 'POST',
-                    data: $('#RegisterForm').serialize(),
+                    data: $('#LoginForm').serialize(),
                     dataType: 'JSON',
                     success: function (res)
                     {
                         if (res.status)
-                            location.href = res.data;
+                            console.log(res);
+                            /* location.href = res.data; */
                         else
                             $('#ErrorMsg').text(res.error);
                         $('#BtnLogin').prop('disabled', false);

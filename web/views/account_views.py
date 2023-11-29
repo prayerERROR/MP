@@ -1,11 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django_redis import get_redis_connection
 
-from web.forms.account_form import RegisterModelForm, EmailVerifyForm, LoginEmailForm
+from web.forms.account_form import RegisterModelForm, EmailVerifyForm, LoginEmailForm, LoginUsernameForm
+from web import models
 from utils.SendMail import send_text_mail
+from utils.ImageCode import generate_image_code
 
 from random import randrange
+from io import BytesIO
 
 
 def register(request):
@@ -13,19 +16,19 @@ def register(request):
         form = RegisterModelForm()
         return render(request, 'register.html', {'form': form})
 
-    # 'POST'
+    # POST
     form = RegisterModelForm(data=request.POST)
-    result = {'status': False, 'error': None}
+    result = {'status': False, 'error': None, 'data': None}
 
     # Verify
-    if not form.is_valid():
-        error_list = list(form.errors.values())
-        result['error'] = error_list[0]
-    else:
+    if form.is_valid():
         # Import new user's data into database.
         # instance = form.save()
         result['status'] = True
         result['data'] = '/login/'
+    else:
+        error_list = list(form.errors.values())
+        result['error'] = error_list[0]
     return JsonResponse(result)
 
 
@@ -44,24 +47,57 @@ def email_verify(request):
     conn = get_redis_connection()
     conn.set(email, verification_code, ex=180)
 
+    print(verification_code)
+    result['status'] = True
+    return JsonResponse(result)
+
     # send email
     mail_subject = 'Email address verification'
-    mail_body = 'MP verification code: {}.\nIt will be expired in 3 minutes.'.format(verification_code)
+    mail_body = 'Verification code for MP: {}.\nIt will be expired in 3 minutes.'.format(verification_code)
     receiver_addr = [email, ]
     send_result = send_text_mail(receiver_addr, mail_subject, mail_body)
     if send_result.get('status'):
         result['status'] = True
-        return JsonResponse(result)
     else:
         result['error'] = send_result['error']
-        return JsonResponse(result)
+    return JsonResponse(result)
 
 
 def login_email(request):
+    # log in with email and email verification
     if request.method == 'GET':
         form = LoginEmailForm()
         return render(request, 'login_email.html', {'form': form})
 
+    # 'POST'
+    form = LoginEmailForm(data=request.POST)
+    result = {'status': False, 'error': None, 'data': None}
+
+    # Verify
+    if form.is_valid():
+        email = form.cleaned_data['email']
+        user = models.UserInfo.objects.filter(email=email).first()
+        request.session['user_id'] = user.id
+        request.session['user_username'] = user.username
+
+        result['status'] = True
+        result['data'] = '/index/'
+    else:
+        error_list = list(form.errors.values())
+        result['error'] = error_list[0]
+    return JsonResponse(result)
+
 
 def login_username(request):
-    pass
+    # log in with username and password
+    if request.method == 'GET':
+        form = LoginUsernameForm()
+        return render(request, 'login_username.html', {'form': form})
+
+
+def image_verify(request):
+    img, code = generate_image_code()
+    stream = BytesIO()
+    img.save(stream, 'png')
+
+    return HttpResponse(stream.getvalue())

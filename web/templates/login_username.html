@@ -1,0 +1,40 @@
+{% extends 'layout/basic.html' %}
+{% load static %}
+
+
+{% block title %} User Login {% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" href="{% static 'css/account_form.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="account_form">
+    <div class="form_title">Login to MP</div>
+    <form id="LoginForm" method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.name == 'image_code' %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    <div class="row">
+                        <div class="col-xs-6">{{ field }}</div>
+                        <div class="col-xs-6"><img src="{% url 'imageVerify' %}" alt="#"></div>
+                    </div>
+                    <span id="ErrorMsg"></span>
+                </div>
+            {% else %}
+                <div class="form-group">
+                    <label for={{ field.id_for_label }}> {{ field.label }} </label>
+                    {{ field }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
+    </form>
+    </div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}
