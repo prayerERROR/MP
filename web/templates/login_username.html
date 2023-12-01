@@ -19,7 +19,7 @@
                     <label for={{ field.id_for_label }}> {{ field.label }} </label>
                     <div class="row">
                         <div class="col-xs-6">{{ field }}</div>
-                        <div class="col-xs-6"><img src="{% url 'imageVerify' %}" alt="#"></div>
+                        <div class="col-xs-6" style="text-align: right"><img src="{% url 'imageVerify' %}" id="ImageCode" title="Click to change image."></div>
                     </div>
                     <span id="ErrorMsg"></span>
                 </div>
@@ -30,11 +30,56 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
+        <div>
+            <div style="float: right"><a href="{% url 'loginEmail' %}">Change login method?</a></div>
+            <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
+        </div>
     </form>
     </div>
 {% endblock %}
 
 {% block js %}
+<script>
+        $(function ()
+        {
+            bindChangeImage();
+            bindClickLogin();
+        });
 
+        function bindChangeImage()
+        {
+            $('#ImageCode').click(function ()
+            {
+                $(this).attr('src', '{% url 'imageVerify' %}' + '?random=' + Math.random());
+            })
+        }
+
+        function bindClickLogin()
+        {
+            $('#BtnLogin').click(function ()
+            {
+                $(this).prop('disabled', true);
+                $('#ErrorMsg').empty();
+                $.ajax
+                ({
+                    url: '{% url 'loginUsername' %}',
+                    type: 'POST',
+                    data: $('#LoginForm').serialize(),
+                    dataType: 'JSON',
+                    success: function (res)
+                    {
+                        if (res.status)
+                            // console.log(res);
+                            location.href = res.data;
+                        else
+                        {
+                            $('#ErrorMsg').text(res.error);
+                            $('#ImageCode').trigger('click');
+                        }
+                        $('#BtnLogin').prop('disabled', false);
+                    }
+                })
+            })
+        }
+</script>
 {% endblock %}

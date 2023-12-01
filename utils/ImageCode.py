@@ -1,6 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
 from random import randint, choice
-from string import ascii_uppercase, digits
 
 
 def generate_image_code(image_size=(150, 35), code_length=5, font_file='utils/segoepr.ttf', font_size=28):
@@ -34,7 +33,9 @@ def generate_image_code(image_size=(150, 35), code_length=5, font_file='utils/se
 
 
 def random_char():
-    char = choice(ascii_uppercase + digits)
+    uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '1234567890'
+    char = choice(uppercase + digits)
     return char
 
 

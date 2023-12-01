@@ -97,6 +97,7 @@
                     success: function (res)
                     {
                         if (res.status)
+                            // console.log(res);
                             location.href = res.data;
                         else
                             $('#ErrorMsg').text(res.error);

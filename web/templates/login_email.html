@@ -19,7 +19,7 @@
                     <label for={{ field.id_for_label }}> {{ field.label }} </label>
                     <div class="row">
                         <div class="col-xs-6">{{ field }}</div>
-                        <div class="col-xs-6"><button id="BtnSendCode" type="button" class="btn btn-default">Send Code</button></div>
+                        <div class="col-xs-6" style="text-align: right"><button id="BtnSendCode" type="button" class="btn btn-default">Click to send Code</button></div>
                     </div>
                     <span id="ErrorMsg"></span>
                 </div>
@@ -30,7 +30,10 @@
                 </div>
             {% endif %}
         {% endfor %}
-        <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
+        <div>
+            <div style="float: right"><a href="{% url 'loginUsername' %}">Change login method?</a></div>
+            <button type="submit" id="BtnLogin" class="btn btn-primary">Login</button>
+        </div>
     </form>
     </div>
 {% endblock %}
@@ -97,8 +100,8 @@
                     success: function (res)
                     {
                         if (res.status)
-                            console.log(res);
-                            /* location.href = res.data; */
+                            // console.log(res);
+                            location.href = res.data;
                         else
                             $('#ErrorMsg').text(res.error);
                         $('#BtnLogin').prop('disabled', false);

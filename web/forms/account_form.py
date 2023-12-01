@@ -129,13 +129,17 @@ class EmailVerifyForm(forms.Form):
 
 class LoginEmailForm(forms.Form):
     email = forms.EmailField(label='Email Address',
+                             max_length=32,
                              error_messages={
                                  'required': 'Enter your email address.',
+                                 'max_length': 'Wrong email address.'
                              },
                              widget=forms.TextInput(attrs={'class': 'form-control'}))
     verification_code = forms.CharField(label='Verification Code',
+                                        max_length=16,
                                         error_messages={
                                             'required': 'Enter your verification code.',
+                                            'max_length': 'Wrong verification code.',
                                         },
                                         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
@@ -165,14 +169,14 @@ class LoginEmailForm(forms.Form):
 
 
 class LoginUsernameForm(forms.Form):
-    username = forms.CharField(label='Username',
+    userinfo = forms.CharField(label='Username or Email',
                                error_messages={
-                                   'required': 'Creat your user name.',
+                                   'required': 'Enter your user name.',
                                },
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
     password = forms.CharField(label='Password',
                                error_messages={
-                                   'required': 'Set your password.',
+                                   'required': 'Enter your password.',
                                },
                                widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     image_code = forms.CharField(label='Image Verification Code',
@@ -180,3 +184,19 @@ class LoginUsernameForm(forms.Form):
                                      'required': 'Enter image verification code.',
                                  },
                                  widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def clean_password(self):
+        password = self.cleaned_data.get('password')
+        password = md5(password)
+        return password
+
+    def clean_image_code(self):
+        image_code = self.cleaned_data.get('image_code')
+        real_code = self.data.get('real_code')
+
+        # Verify image code
+        if not real_code:
+            raise ValidationError('The image verification code has expired.')
+        if image_code.upper() != real_code:
+            raise ValidationError('Wrong image verification code')
+        return image_code
